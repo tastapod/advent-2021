@@ -1,0 +1,6 @@
+# IDEs
+.idea/
+.fleet/
+
+# Rust
+/target
