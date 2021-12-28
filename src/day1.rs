@@ -1,3 +1,4 @@
+use itertools::izip;
 
 pub const REPORT: &[i32] = &[
     156, 176, 175, 176, 183, 157, 150, 153, 154, 170, 162, 167, 170, 188, 190, 194, 196, 198, 202,
@@ -131,13 +132,27 @@ pub fn count_increases(report: &[i32]) -> i32 {
         .fold(0, |acc, (l, r)| if r > l { acc + 1 } else { acc })
 }
 
+pub fn sum_triples(report: &[i32]) -> Vec<i32> {
+    assert!(report.len() >= 3, "require at least three elements");
+    izip!(report, report[1..].iter(), report[2..].iter())
+        .map(|(a, b, c)| a + b + c).collect::<Vec<i32>>()
+}
+
 #[cfg(test)]
 mod tests {
     use super::count_increases;
+    use super::sum_triples;
+
+    const TEST_REPORT: &[i32] = &[199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
 
     #[test]
     fn counts_number_of_increases() {
-        let report: &[i32] = &[199, 200, 208, 210, 200, 207, 240, 269, 260, 263];
-        assert_eq!(count_increases(report), 7);
+        assert_eq!(count_increases(TEST_REPORT), 7);
+    }
+
+    #[test]
+    fn creates_three_item_window() {
+        let expected = [607, 618, 618, 617, 647, 716, 769, 792];
+        assert_eq!(sum_triples(TEST_REPORT).as_slice(), expected);
     }
 }
