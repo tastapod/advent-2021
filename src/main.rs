@@ -1,4 +1,5 @@
 mod day1;
+mod day2;
 
 fn day1() {
     let report = day1::input();
@@ -9,6 +10,13 @@ fn day1() {
     ); // 1359
 }
 
+fn day2() {
+    let input = day2::input();
+    let pos = day2::navigate(&input);
+    println!("Day 2 part 1: {:?} has product {}", pos, pos.product());
+}
+
 fn main() {
     day1();
+    day2();
 }
