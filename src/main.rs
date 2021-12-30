@@ -1,5 +1,6 @@
 mod day1;
 mod day2;
+mod day3;
 
 fn day1() {
     let report = day1::input();
@@ -20,7 +21,14 @@ fn day2() {
     println!("Day 2 part 2: {:?} has product {}", pos, pos.product());
 }
 
+fn day3() {
+    let input = day3::input();
+    let rates = day3::calculate_rates(&input);
+    println!("Day 3 part 1: power consumption = {}", rates.product());
+}
+
 fn main() {
     day1();
     day2();
+    day3();
 }

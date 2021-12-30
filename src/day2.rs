@@ -2,7 +2,7 @@ use std::str::FromStr;
 
 type Distance = i32;
 
-#[derive(Debug, Eq, PartialEq)]
+#[derive(Debug, PartialEq)]
 pub struct Position {
     horizontal: Distance,
     depth: Distance,
