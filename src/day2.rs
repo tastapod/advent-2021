@@ -6,6 +6,7 @@ type Distance = i32;
 pub struct Position {
     horizontal: Distance,
     depth: Distance,
+    aim: Distance,
 }
 
 impl Position {
@@ -14,6 +15,12 @@ impl Position {
     }
 }
 
+const START_POSITION: Position = Position {
+    horizontal: 0,
+    depth: 0,
+    aim: 0,
+};
+
 enum Step {
     Forward(Distance),
     Down(Distance),
@@ -21,18 +28,36 @@ enum Step {
 }
 
 impl Step {
-    fn apply(&self, start: Position) -> Position {
+    fn apply_simple(&self, start: Position) -> Position {
+        match self {
+            Step::Forward(distance) => Position {
+                horizontal: start.horizontal + distance,
+                ..start
+            },
+            Step::Down(distance) => Position {
+                depth: start.depth + distance,
+                ..start
+            },
+            Step::Up(distance) => Position {
+                depth: start.depth - distance,
+                ..start
+            },
+        }
+    }
+
+    fn apply_with_aim(&self, start: Position) -> Position {
         match self {
             Step::Forward(dist) => Position {
                 horizontal: start.horizontal + dist,
+                depth: start.depth + start.aim * dist,
                 ..start
             },
             Step::Down(dist) => Position {
-                depth: start.depth + dist,
+                aim: start.aim + dist,
                 ..start
             },
             Step::Up(dist) => Position {
-                depth: start.depth - dist,
+                aim: start.aim - dist,
                 ..start
             },
         }
@@ -53,13 +78,21 @@ fn parse_step_def(step_def: &&str) -> Step {
 }
 
 pub fn navigate(step_defs: &[&str]) -> Position {
-    step_defs.iter().map(parse_step_def).fold(
-        Position {
-            horizontal: 0,
-            depth: 0,
-        },
-        |pos, step| step.apply(pos),
-    )
+    navigate_with_strategy(step_defs, &Step::apply_simple)
+}
+
+pub fn navigate_with_aim(step_defs: &[&str]) -> Position {
+    navigate_with_strategy(step_defs, &Step::apply_with_aim)
+}
+
+fn navigate_with_strategy(
+    step_defs: &[&str],
+    strategy: &dyn Fn(&Step, Position) -> Position,
+) -> Position {
+    step_defs
+        .iter()
+        .map(parse_step_def)
+        .fold(START_POSITION, |pos, step| strategy(&step, pos))
 }
 
 pub fn input() -> Vec<&'static str> {
@@ -89,7 +122,8 @@ mod tests {
             end_pos,
             Position {
                 horizontal: 15,
-                depth: 10
+                depth: 10,
+                aim: 0,
             }
         );
         assert_eq!(end_pos.product(), 150);
