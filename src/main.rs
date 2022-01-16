@@ -22,9 +22,15 @@ fn day2() {
 }
 
 fn day3() {
+    use day3::part1;
+    use day3::part2;
+    
     let input = day3::input();
-    let rates = day3::calculate_rates(&input);
+    let rates = part1::calculate_rates(&input);
     println!("Day 3 part 1: power consumption = {}", rates.product());
+
+    let nodes = day3::part2::BitNode::from(&input);
+    println!("Day 3 part 2: life support rating = {}", part2::life_support_rating(&nodes, input[0].len()))
 }
 
 fn main() {
