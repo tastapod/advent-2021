@@ -4,7 +4,6 @@
 /// number to its row and column, and to have a countdown for each row and
 /// column. As each number lands, the appropriate row and column are
 /// decremented.
-///
 pub mod part1 {
     use std::collections::HashMap;
 
@@ -14,8 +13,7 @@ pub mod part1 {
     pub struct Board {
         pub numbers: HashMap<usize, (usize, usize)>,
         pub rows: [usize; BOARD_SIZE],
-        pub cols: [usize; BOARD_SIZE],
-        pub is_finished: bool,
+        pub cols: [usize; BOARD_SIZE]
     }
 
     impl Board {
@@ -31,21 +29,23 @@ pub mod part1 {
             result
         }
 
-        pub fn play(&mut self, num: usize) {
-            if let Some((row, col)) = self.numbers.get(&num) {
-                self.rows[*row] += 1;
-                self.cols[*col] += 1;
+        pub fn play(&mut self, num: usize) -> Option<usize> {
+            if let Some((row, col)) = self.numbers.remove(&num) {
+                self.rows[row] += 1;
+                self.cols[col] += 1;
 
-                if self.rows[*row] == BOARD_SIZE || self.cols[*col] == BOARD_SIZE {
-                    self.is_finished = true;
+                if self.rows[row] == BOARD_SIZE || self.cols[col] == BOARD_SIZE {
+                    let unmarked_sum: usize = self.numbers.keys().sum();
+                    return Some(unmarked_sum * num);
                 }
             }
+            None
         }
     }
 
     pub struct Game {
-        boards: Vec<Board>,
-        turns: Vec<usize>
+        pub boards: Vec<Board>,
+        pub turns: Vec<usize>,
     }
 
     impl Game {
@@ -65,14 +65,23 @@ pub mod part1 {
             result
         }
 
-        pub fn sizes(&self) -> (usize, usize) {
-            (self.turns.len(), self.boards.len())
-        }
-
-        pub fn play(&mut self) -> Option<usize> {
+        pub fn play(&mut self) -> Option<(usize, usize)> {
+            for turn in &self.turns {
+                for (i, board) in self.boards.iter_mut().enumerate() {
+                    if let Some(result) = board.play(*turn) {
+                        return Some((i, result));
+                    }
+                }
+            }
             None
         }
     }
+}
+
+pub fn input() -> Vec<&'static str> {
+    include_str!("day4_input.txt")
+        .lines()
+        .collect::<Vec<&str>>()
 }
 
 #[cfg(test)]
@@ -82,8 +91,6 @@ mod tests {
     #[test]
     fn sets_up_a_board() {
         let board = Board::from_strings(sample_board());
-
-        assert_eq!(false, board.is_finished);
 
         for (pos, num) in [
             ((0, 0), 22),
@@ -105,24 +112,25 @@ mod tests {
         board.play(21);
         board.play(9);
         board.play(14);
-        board.play(16);
-        assert_eq!(false, board.is_finished);
+        let result = board.play(16);
+        assert_eq!(None, result);
 
-        board.play(7);
-        assert_eq!(true, board.is_finished);
+        let result = board.play(7);
+        assert_eq!(Some(1631), result);
     }
 
     #[test]
     fn sets_up_a_game() {
         let game = Game::from_strings(sample_game());
-        assert_eq!((27, 3), game.sizes());
+        assert_eq!(27, game.turns.len());
+        assert_eq!(3, game.boards.len());
     }
 
     #[test]
     fn plays_game() {
         let mut game = Game::from_strings(sample_game());
 
-        assert_eq!(Some(4512), game.play());
+        assert_eq!(Some((2, 4512)), game.play());
     }
 
     fn sample_board() -> &'static [&'static str] {

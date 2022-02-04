@@ -30,12 +30,22 @@ fn day3() {
     let rates = part1::calculate_rates(&input);
     println!("Day 3 part 1: power consumption = {}", rates.product());
 
-    let nodes = day3::part2::BitNode::from(&input);
+    let nodes = part2::BitNode::from(&input);
     println!("Day 3 part 2: life support rating = {}", part2::life_support_rating(&nodes, input[0].len()))
+}
+
+fn day4() {
+    use day4::part1;
+
+    let input = day4::input();
+    let mut game = part1::Game::from_strings(&input);
+    let result = game.play().unwrap();
+    println!("Day 4 part 1: board {} has score {}", result.0, result.1)
 }
 
 fn main() {
     day1();
     day2();
     day3();
+    day4();
 }
