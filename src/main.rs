@@ -35,16 +35,12 @@ fn day3() {
 }
 
 fn day4() {
-    use day4::part1;
-
     let input = day4::input();
-    let mut game = part1::Game::from_strings(&input);
-    let result = game.play_to_win().unwrap();
-    println!("Day 4 part 1: board {} has score {}", result.0, result.1);
+    let mut game = day4::Game::from_strings(&input);
+    println!("Day 4 part 1: score = {}", game.play_to_win().unwrap());
 
-    let mut game = part1::Game::from_strings(&input);
-    let result = game.play_to_lose().unwrap();
-    println!("Day 4 part 2: board {} has score {}", result.0, result.1);
+    let mut game = day4::Game::from_strings(&input);
+    println!("Day 4 part 2: score = {}", game.play_to_lose().unwrap());
 }
 
 fn main() {

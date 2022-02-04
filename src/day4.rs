@@ -4,98 +4,96 @@
 /// number to its row and column, and to have a countdown for each row and
 /// column. As each number lands, the appropriate row and column are
 /// decremented.
-pub mod part1 {
-    use std::collections::HashMap;
+use std::collections::HashMap;
 
-    pub const BOARD_SIZE: usize = 5;
+pub const BOARD_SIZE: usize = 5;
 
-    #[derive(Default)]
-    pub struct Board {
-        pub numbers: HashMap<usize, (usize, usize)>,
-        pub rows: [usize; BOARD_SIZE],
-        pub cols: [usize; BOARD_SIZE],
-        pub is_finished: bool,
+#[derive(Default)]
+pub struct Board {
+    pub numbers: HashMap<usize, (usize, usize)>,
+    pub rows: [usize; BOARD_SIZE],
+    pub cols: [usize; BOARD_SIZE],
+}
+
+impl Board {
+    pub fn from_strings(strings: &[&str]) -> Self {
+        let mut result = Board::default();
+
+        for (row, row_str) in strings.iter().enumerate() {
+            for (col, col_str) in row_str.split_whitespace().enumerate() {
+                let number = col_str.parse::<usize>().unwrap();
+                result.numbers.insert(number, (row, col));
+            }
+        }
+        result
     }
 
-    impl Board {
-        pub fn from_strings(strings: &[&str]) -> Self {
-            let mut result = Board::default();
+    pub fn play(&mut self, num: usize) -> Option<usize> {
+        if let Some((row, col)) = self.numbers.remove(&num) {
+            self.rows[row] += 1;
+            self.cols[col] += 1;
 
-            for (row, row_str) in strings.iter().enumerate() {
-                for (col, col_str) in row_str.split_whitespace().enumerate() {
-                    let number = col_str.parse::<usize>().unwrap();
-                    result.numbers.insert(number, (row, col));
+            if self.rows[row] == BOARD_SIZE || self.cols[col] == BOARD_SIZE {
+                let unmarked_sum: usize = self.numbers.keys().sum();
+                return Some(unmarked_sum * num);
+            }
+        }
+        None
+    }
+}
+
+pub struct Game {
+    pub boards: Vec<Board>,
+    pub turns: Vec<usize>,
+}
+
+impl Game {
+    pub fn from_strings(strings: &[&str]) -> Self {
+        let turns = (&strings[0])
+            .split(',')
+            .map(|s| s.parse::<usize>().unwrap())
+            .collect::<Vec<usize>>();
+
+        let mut result = Game {
+            turns: turns,
+            boards: Vec::new(),
+        };
+        for board_src in strings[1..].chunks(6) {
+            result.boards.push(Board::from_strings(&board_src[1..]));
+        }
+        result
+    }
+
+    pub fn play_to_win(&mut self) -> Option<usize> {
+        for turn in &self.turns {
+            for board in self.boards.iter_mut() {
+                if let Some(result) = board.play(*turn) {
+                    return Some(result);
                 }
             }
-            result
         }
-
-        pub fn play(&mut self, num: usize) -> Option<usize> {
-            if self.is_finished {
-                return None;
-            }
-            if let Some((row, col)) = self.numbers.remove(&num) {
-                self.rows[row] += 1;
-                self.cols[col] += 1;
-
-                if self.rows[row] == BOARD_SIZE || self.cols[col] == BOARD_SIZE {
-                    self.is_finished = true;
-                    let unmarked_sum: usize = self.numbers.keys().sum();
-                    return Some(unmarked_sum * num);
-                }
-            }
-            None
-        }
+        None
     }
 
-    pub struct Game {
-        pub boards: Vec<Board>,
-        pub turns: Vec<usize>,
-    }
+    pub fn play_to_lose(&mut self) -> Option<usize> {
+        for turn in &self.turns {
+            let mut i = 0;
 
-    impl Game {
-        pub fn from_strings(strings: &[&str]) -> Self {
-            let turns = (&strings[0])
-                .split(',')
-                .map(|s| s.parse::<usize>().unwrap())
-                .collect::<Vec<usize>>();
-
-            let mut result = Game {
-                turns: turns,
-                boards: Vec::new(),
-            };
-            for board_src in strings[1..].chunks(6) {
-                result.boards.push(Board::from_strings(&board_src[1..]));
-            }
-            result
-        }
-
-        pub fn play_to_win(&mut self) -> Option<(usize, usize)> {
-            for turn in &self.turns {
-                for (i, board) in self.boards.iter_mut().enumerate() {
-                    if let Some(result) = board.play(*turn) {
-                        return Some((i, result));
+            // iterate through the boards, removing any that complete
+            while i < self.boards.len() {
+                if let Some(result) = self.boards[i].play(*turn) {
+                    if self.boards.len() == 1 {
+                        // last board standing!
+                        return Some(result);
+                    } else {
+                        self.boards.remove(i);
                     }
+                } else {
+                    i += 1;
                 }
             }
-            None
         }
-
-        pub fn play_to_lose(&mut self) -> Option<(usize, usize)> {
-            let mut boards_left = self.boards.len();
-
-            for turn in &self.turns {
-                for (i, board) in self.boards.iter_mut().enumerate() {
-                    if let Some(result) = board.play(*turn) {
-                        boards_left -= 1;
-                        if boards_left == 0 {
-                            return Some((i, result));
-                        }
-                    }
-                }
-            }
-            None
-        }
+        None
     }
 }
 
@@ -107,7 +105,7 @@ pub fn input() -> Vec<&'static str> {
 
 #[cfg(test)]
 mod tests {
-    use super::part1::*;
+    use super::*;
 
     #[test]
     fn sets_up_a_board() {
@@ -150,13 +148,13 @@ mod tests {
     #[test]
     fn plays_game_to_win() {
         let mut game = Game::from_strings(sample_game());
-        assert_eq!(Some((2, 4512)), game.play_to_win());
+        assert_eq!(Some(4512), game.play_to_win());
     }
 
     #[test]
     fn plays_game_to_lose() {
         let mut game = Game::from_strings(sample_game());
-        assert_eq!(Some((1, 1924)), game.play_to_lose());
+        assert_eq!(Some(1924), game.play_to_lose());
     }
 
     fn sample_board() -> &'static [&'static str] {
