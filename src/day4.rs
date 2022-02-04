@@ -13,28 +13,33 @@ pub mod part1 {
     pub struct Board {
         pub numbers: HashMap<usize, (usize, usize)>,
         pub rows: [usize; BOARD_SIZE],
-        pub cols: [usize; BOARD_SIZE]
+        pub cols: [usize; BOARD_SIZE],
+        pub is_finished: bool,
     }
 
     impl Board {
         pub fn from_strings(strings: &[&str]) -> Self {
             let mut result = Board::default();
 
-            for (row_id, row) in strings.iter().enumerate() {
-                for (col_id, col) in row.split_whitespace().enumerate() {
-                    let number = col.parse::<usize>().unwrap();
-                    result.numbers.insert(number, (row_id, col_id));
+            for (row, row_str) in strings.iter().enumerate() {
+                for (col, col_str) in row_str.split_whitespace().enumerate() {
+                    let number = col_str.parse::<usize>().unwrap();
+                    result.numbers.insert(number, (row, col));
                 }
             }
             result
         }
 
         pub fn play(&mut self, num: usize) -> Option<usize> {
+            if self.is_finished {
+                return None;
+            }
             if let Some((row, col)) = self.numbers.remove(&num) {
                 self.rows[row] += 1;
                 self.cols[col] += 1;
 
                 if self.rows[row] == BOARD_SIZE || self.cols[col] == BOARD_SIZE {
+                    self.is_finished = true;
                     let unmarked_sum: usize = self.numbers.keys().sum();
                     return Some(unmarked_sum * num);
                 }
@@ -65,11 +70,27 @@ pub mod part1 {
             result
         }
 
-        pub fn play(&mut self) -> Option<(usize, usize)> {
+        pub fn play_to_win(&mut self) -> Option<(usize, usize)> {
             for turn in &self.turns {
                 for (i, board) in self.boards.iter_mut().enumerate() {
                     if let Some(result) = board.play(*turn) {
                         return Some((i, result));
+                    }
+                }
+            }
+            None
+        }
+
+        pub fn play_to_lose(&mut self) -> Option<(usize, usize)> {
+            let mut boards_left = self.boards.len();
+
+            for turn in &self.turns {
+                for (i, board) in self.boards.iter_mut().enumerate() {
+                    if let Some(result) = board.play(*turn) {
+                        boards_left -= 1;
+                        if boards_left == 0 {
+                            return Some((i, result));
+                        }
                     }
                 }
             }
@@ -127,10 +148,15 @@ mod tests {
     }
 
     #[test]
-    fn plays_game() {
+    fn plays_game_to_win() {
         let mut game = Game::from_strings(sample_game());
+        assert_eq!(Some((2, 4512)), game.play_to_win());
+    }
 
-        assert_eq!(Some((2, 4512)), game.play());
+    #[test]
+    fn plays_game_to_lose() {
+        let mut game = Game::from_strings(sample_game());
+        assert_eq!(Some((1, 1924)), game.play_to_lose());
     }
 
     fn sample_board() -> &'static [&'static str] {

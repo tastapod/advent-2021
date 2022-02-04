@@ -16,7 +16,11 @@ pub fn count_increases(report: &[i32]) -> i32 {
 }
 
 pub fn sum_triples(report: &[i32]) -> Vec<i32> {
-    assert!(report.len() >= 3, "require at least three elements, found {}", report.len());
+    assert!(
+        report.len() >= 3,
+        "require at least three elements, found {}",
+        report.len()
+    );
     izip!(report, report[1..].iter(), report[2..].iter())
         .map(|(a, b, c)| a + b + c)
         .collect::<Vec<i32>>()
