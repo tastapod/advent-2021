@@ -4,6 +4,7 @@ mod day2;
 mod day3;
 mod day4;
 mod day5;
+mod day6;
 
 fn main() {
     day1();
@@ -11,6 +12,7 @@ fn main() {
     day3();
     day4();
     day5();
+    day6();
 }
 
 fn day1() {
@@ -60,4 +62,10 @@ fn day5() {
 
     let vents_map = day5::VentsMap::from_strings(&input, true);
     println!("Day 5 part 2: found {} dangerous points", vents_map.count_dangerous_areas());
+}
+
+fn day6() {
+    let input = input::for_day(6);
+    let mut school = day6::School::from_string(&input[0]);
+    println!("Day 6 part 1: school has {} fish", school.to_day(80).fish.len());
 }
