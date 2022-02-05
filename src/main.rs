@@ -66,6 +66,10 @@ fn day5() {
 
 fn day6() {
     let input = input::for_day(6);
+
     let mut school = day6::School::from_string(&input[0]);
-    println!("Day 6 part 1: school has {} fish", school.to_day(80).fish.len());
+    println!("Day 6 part 1: school has {} fish", school.to_day(80).count());
+
+    let mut school = day6::School::from_string(&input[0]);
+    println!("Day 6 part 2: school has {} fish", school.to_day(256).count());
 }

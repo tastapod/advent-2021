@@ -1,31 +1,36 @@
 pub struct School {
     pub day: i32,
-    pub fish: Vec<i32>,
+    pub fish_counts: [i64; 9],
 }
 
 impl School {
     pub fn from_string(fish_str: &str) -> School {
+        let mut fish_counts = [0; 9];
+        for n in fish_str.split(",") {
+            fish_counts[n.parse::<usize>().unwrap()] += 1;
+        }
+
         School {
             day: 0,
-            fish: fish_str
-                .split(",")
-                .map(|n| n.parse::<i32>().unwrap())
-                .collect::<Vec<i32>>(),
+            fish_counts: fish_counts,
         }
     }
 
     pub fn next_day(&mut self) -> &School {
-        let mut new_fish: Vec<i32> = vec![];
-        for i in 0..self.fish.len() {
-            if self.fish[i] == 0 {
-                self.fish[i] = 6;
-                new_fish.push(8);
-            } else {
-                self.fish[i] -= 1;
-            }
+        let mut next_counts = [0; 9];
+
+        // gestation periods get a day shorter
+        for i in 1..=8 {
+            next_counts[i - 1] = self.fish_counts[i];
         }
-        self.fish.extend(new_fish);
+
+        // day 0 fish have babies and reset their cycle
+        next_counts[8] = self.fish_counts[0];
+        next_counts[6] += self.fish_counts[0];
+
         self.day += 1;
+        self.fish_counts = next_counts;
+
         self
     }
 
@@ -34,6 +39,10 @@ impl School {
             self.next_day();
         }
         self
+    }
+
+    pub fn count(&self) -> i64 {
+        self.fish_counts.iter().sum()
     }
 }
 
@@ -44,9 +53,10 @@ mod tests {
     #[test]
     fn calculates_generation() {
         let mut school = School::from_string("3,4,3,1,2");
-        assert_eq!(vec![2, 3, 2, 0, 1], school.next_day().fish);
-        assert_eq!(vec![1, 2, 1, 6, 0, 8], school.next_day().fish);
-        assert_eq!(26, school.to_day(18).fish.len());
-        assert_eq!(5934, school.to_day(80).fish.len());
+        assert_eq!(5, school.next_day().count());
+        assert_eq!(6, school.next_day().count());
+        assert_eq!(26, school.to_day(18).count());
+        assert_eq!(5934, school.to_day(80).count());
+        assert_eq!(26984457539, school.to_day(256).count());
     }
 }
