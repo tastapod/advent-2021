@@ -16,10 +16,10 @@ pub struct Board {
 }
 
 impl Board {
-    pub fn from_strings(strings: &[&str]) -> Self {
+    pub fn from_strings(input: Vec<String>) -> Self {
         let mut result = Board::default();
 
-        for (row, row_str) in strings.iter().enumerate() {
+        for (row, row_str) in input.iter().enumerate() {
             for (col, col_str) in row_str.split_whitespace().enumerate() {
                 let number = col_str.parse::<usize>().unwrap();
                 result.numbers.insert(number, (row, col));
@@ -48,7 +48,7 @@ pub struct Game {
 }
 
 impl Game {
-    pub fn from_strings(strings: &[&str]) -> Self {
+    pub fn from_strings(strings: &Vec<String>) -> Self {
         let turns = (&strings[0])
             .split(',')
             .map(|s| s.parse::<usize>().unwrap())
@@ -59,7 +59,7 @@ impl Game {
             boards: Vec::new(),
         };
         for board_src in strings[1..].chunks(6) {
-            result.boards.push(Board::from_strings(&board_src[1..]));
+            result.boards.push(Board::from_strings(board_src[1..].to_vec()));
         }
         result
     }
@@ -95,12 +95,6 @@ impl Game {
         }
         None
     }
-}
-
-pub fn input() -> Vec<&'static str> {
-    include_str!("day4_input.txt")
-        .lines()
-        .collect::<Vec<&str>>()
 }
 
 #[cfg(test)]
@@ -140,35 +134,35 @@ mod tests {
 
     #[test]
     fn sets_up_a_game() {
-        let game = Game::from_strings(sample_game());
+        let game = Game::from_strings(&sample_game());
         assert_eq!(27, game.turns.len());
         assert_eq!(3, game.boards.len());
     }
 
     #[test]
     fn plays_game_to_win() {
-        let mut game = Game::from_strings(sample_game());
+        let mut game = Game::from_strings(&sample_game());
         assert_eq!(Some(4512), game.play_to_win());
     }
 
     #[test]
     fn plays_game_to_lose() {
-        let mut game = Game::from_strings(sample_game());
+        let mut game = Game::from_strings(&sample_game());
         assert_eq!(Some(1924), game.play_to_lose());
     }
 
-    fn sample_board() -> &'static [&'static str] {
-        &[
+    fn sample_board() -> Vec<String> {
+        [
             "22 13 17 11  0",
             " 8  2 23  4 24",
             "21  9 14 16  7",
             " 6 10  3 18  5",
             " 1 12 20 15 19",
-        ]
+        ].map(|s| s.to_string()).to_vec()
     }
 
-    fn sample_game() -> &'static [&'static str] {
-        &[
+    fn sample_game() -> Vec<String> {
+        [
             "7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1",
             "",
             "22 13 17 11  0",
@@ -188,6 +182,6 @@ mod tests {
             "18  8 23 26 20",
             "22 11 13  6  5",
             " 2  0 12  3  7",
-        ]
+        ].map(|s| s.to_string()).to_vec()
     }
 }

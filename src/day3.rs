@@ -5,13 +5,6 @@
 //! Think of each n-digit binary string as a path through a tree of nodes,
 //! each with two children, 1 and 0. The binary string then walks the tree,
 //! incrementing each node it touches.
-
-pub fn input() -> Vec<&'static str> {
-    include_str!("day3_input.txt")
-        .lines()
-        .collect::<Vec<&str>>()
-}
-
 pub mod part1 {
 
     #[derive(Debug, PartialEq)]
@@ -29,7 +22,7 @@ pub mod part1 {
         }
     }
 
-    pub fn calculate_rates(report: &[&str]) -> Rates {
+    pub fn calculate_rates(report: &Vec<String>) -> Rates {
         fn gamma(counts: &Vec<i32>, max: usize) -> String {
             let half = i32::try_from(max / 2).unwrap();
             counts
@@ -160,12 +153,12 @@ pub mod part2 {
         co2_scrubber * o2_generator
     }
 
-    /// BitNode::from(["list", "of", "entries"])
-    impl From<&Vec<&str>> for BitNode {
-        fn from(vec: &Vec<&str>) -> Self {
+    /// BitNode::from(Vec["list", "of", "entries"])
+    impl From<&Vec<String>> for BitNode {
+        fn from(vec: &Vec<String>) -> Self {
             let mut result = BitNode::default();
             for entry in vec {
-                add_entry_to_node_tree(&mut result, entry);
+                add_entry_to_node_tree(&mut result, entry.as_str());
             }
             result
         }
@@ -177,10 +170,14 @@ mod tests {
     use super::part1::*;
     use super::part2::*;
 
-    const REPORT: [&str; 12] = [
-        "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000", "11001",
-        "00010", "01010",
-    ];
+    fn report() -> Vec<String> {
+        [
+            "00100", "11110", "10110", "10111", "10101", "01111", "00111", "11100", "10000",
+            "11001", "00010", "01010",
+        ]
+        .map(|s| s.to_string())
+        .to_vec()
+    }
 
     #[test]
     fn counts_ones() {
@@ -192,7 +189,7 @@ mod tests {
 
     #[test]
     fn calculates_rates() {
-        let rates = calculate_rates(&REPORT);
+        let rates = calculate_rates(&report());
 
         assert_eq!(
             rates,
@@ -206,15 +203,15 @@ mod tests {
 
     #[test]
     fn builds_empty_bit_tree() {
-        let entries = &vec![];
-        let bit_tree = BitNode::from(entries);
+        let entries = vec![];
+        let bit_tree = BitNode::from(&entries);
         assert_eq!(bit_tree, BitNode::default())
     }
 
     #[test]
     fn builds_bit_tree() {
-        let entries = &vec!["10", "11", "01"];
-        let bit_tree = BitNode::from(entries);
+        let entries = ["10", "11", "01"].map(|s| String::from(s)).to_vec();
+        let bit_tree = BitNode::from(&entries);
 
         assert_eq!(3, bit_tree.count);
 
@@ -233,19 +230,19 @@ mod tests {
 
     #[test]
     fn calculates_oxygen_generator_rating() {
-        let bit_tree = BitNode::from(&Vec::from(REPORT));
-        assert_eq!(o2_generator_rating(&bit_tree, REPORT[0].len()), "10111");
+        let bit_tree = BitNode::from(&report());
+        assert_eq!(o2_generator_rating(&bit_tree, report()[0].len()), "10111");
     }
 
     #[test]
     fn calculates_co2_scrubber_rating() {
-        let bit_tree = BitNode::from(&Vec::from(REPORT));
-        assert_eq!(co2_scrubber_rating(&bit_tree, REPORT[0].len()), "01010");
+        let bit_tree = BitNode::from(&report());
+        assert_eq!(co2_scrubber_rating(&bit_tree, report()[0].len()), "01010");
     }
 
     #[test]
     fn calculates_life_support_rating() {
-        let bit_tree = BitNode::from(&Vec::from(REPORT));
-        assert_eq!(life_support_rating(&bit_tree, REPORT[0].len()), 230);
+        let bit_tree = BitNode::from(&report());
+        assert_eq!(life_support_rating(&bit_tree, report()[0].len()), 230);
     }
 }
