@@ -4,6 +4,7 @@
 /// number to its row and column, and to have a countdown for each row and
 /// column. As each number lands, the appropriate row and column are
 /// decremented.
+///
 use std::collections::HashMap;
 
 pub const BOARD_SIZE: usize = 5;
@@ -59,7 +60,9 @@ impl Game {
             boards: Vec::new(),
         };
         for board_src in strings[1..].chunks(6) {
-            result.boards.push(Board::from_strings(board_src[1..].to_vec()));
+            result
+                .boards
+                .push(Board::from_strings(board_src[1..].to_vec()));
         }
         result
     }
@@ -158,7 +161,9 @@ mod tests {
             "21  9 14 16  7",
             " 6 10  3 18  5",
             " 1 12 20 15 19",
-        ].map(|s| s.to_string()).to_vec()
+        ]
+        .map(|s| s.to_string())
+        .to_vec()
     }
 
     fn sample_game() -> Vec<String> {
@@ -182,6 +187,8 @@ mod tests {
             "18  8 23 26 20",
             "22 11 13  6  5",
             " 2  0 12  3  7",
-        ].map(|s| s.to_string()).to_vec()
+        ]
+        .map(|s| s.to_string())
+        .to_vec()
     }
 }
