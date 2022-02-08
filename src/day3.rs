@@ -22,8 +22,8 @@ pub mod part1 {
         }
     }
 
-    pub fn calculate_rates(report: &Vec<String>) -> Rates {
-        fn gamma(counts: &Vec<i32>, max: usize) -> String {
+    pub fn calculate_rates(report: &[String]) -> Rates {
+        fn gamma(counts: &[i32], max: usize) -> String {
             let half = i32::try_from(max / 2).unwrap();
             counts
                 .iter()

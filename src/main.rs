@@ -5,6 +5,7 @@ mod day3;
 mod day4;
 mod day5;
 mod day6;
+mod day7;
 
 fn main() {
     day1();
@@ -13,6 +14,7 @@ fn main() {
     day4();
     day5();
     day6();
+    day7();
 }
 
 fn day1() {
@@ -72,4 +74,10 @@ fn day6() {
 
     let mut school = day6::School::from_string(&input[0]);
     println!("Day 6 part 2: school has {} fish", school.to_day(256).count());
+}
+
+fn day7() {
+    let input = input::for_day(7);
+    let (col, cost) = day7::least_cost(&day7::build_histogram(&input[0]));
+    println!("Day 7 part 1: column {} has cost {}", col, cost)
 }
