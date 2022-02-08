@@ -6,6 +6,7 @@ mod day4;
 mod day5;
 mod day6;
 mod day7;
+mod day8;
 
 fn main() {
     day1();
@@ -15,6 +16,7 @@ fn main() {
     day5();
     day6();
     day7();
+    day8();
 }
 
 fn day1() {
@@ -84,4 +86,10 @@ fn day7() {
     
     let (col, cost) = day7::stepped_least_cost(&histogram);
     println!("Day 7 part 2: column {} has cost {}", col, cost);
+}
+
+fn day8() {
+    let input = input::for_day(8);
+    let lines = input.iter().map(|s| &s as &str).collect::<Vec<&str>>();
+    println!("Day 8 part 1: found {} unusual lengths", day8::count_outputs_with_lengths(&lines, &[2, 4, 3, 7]));
 }
