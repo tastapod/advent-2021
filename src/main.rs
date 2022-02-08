@@ -77,7 +77,11 @@ fn day6() {
 }
 
 fn day7() {
-    let input = input::for_day(7);
-    let (col, cost) = day7::least_cost(&day7::build_histogram(&input[0]));
-    println!("Day 7 part 1: column {} has cost {}", col, cost)
+    let histogram = day7::histogram(&input::for_day(7)[0]);
+
+    let (col, cost) = day7::linear_least_cost(&histogram);
+    println!("Day 7 part 1: column {} has cost {}", col, cost);
+    
+    let (col, cost) = day7::stepped_least_cost(&histogram);
+    println!("Day 7 part 2: column {} has cost {}", col, cost);
 }
